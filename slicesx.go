@@ -3,7 +3,12 @@ package slicesx
 import "reflect"
 
 // Map applies fn to each element of the slice and returns a new slice of results.
-func Map[S ~[]E, E any, R any](raw S, fn func(E, int) R) []R {
+func Map[S ~[]E, E any, R any](raw S, fn func(E) R) []R {
+	return MapIndex(raw, func(v E, _ int) R { return fn(v) })
+}
+
+// MapIndex applies fn to each element of the slice and returns a new slice of results.
+func MapIndex[S ~[]E, E any, R any](raw S, fn func(E, int) R) []R {
 	result := make([]R, 0, len(raw))
 	for i, v := range raw {
 		result = append(result, fn(v, i))
@@ -12,7 +17,12 @@ func Map[S ~[]E, E any, R any](raw S, fn func(E, int) R) []R {
 }
 
 // Filter returns a new slice containing only elements for which fn returns true.
-func Filter[S ~[]E, E any](raw S, fn func(E, int) bool) S {
+func Filter[S ~[]E, E any](raw S, fn func(E) bool) S {
+	return FilterIndex(raw, func(v E, _ int) bool { return fn(v) })
+}
+
+// FilterIndex returns a new slice containing only elements for which fn returns true.
+func FilterIndex[S ~[]E, E any](raw S, fn func(E, int) bool) S {
 	result := make(S, 0, len(raw))
 	for i, v := range raw {
 		if fn(v, i) {
@@ -23,14 +33,24 @@ func Filter[S ~[]E, E any](raw S, fn func(E, int) bool) S {
 }
 
 // ForEach executes fn for each element in the slice.
-func ForEach[S ~[]E, E any](raw S, fn func(E, int)) {
+func ForEach[S ~[]E, E any](raw S, fn func(E)) {
+	ForEach2(raw, func(v E, _ int) { fn(v) })
+}
+
+// ForEach2 executes fn for each element in the slice.
+func ForEach2[S ~[]E, E any](raw S, fn func(E, int)) {
 	for i, v := range raw {
 		fn(v, i)
 	}
 }
 
 // Some returns true if any element satisfies fn.
-func Some[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
+func Some[S ~[]E, E any](raw S, fn func(E) bool) bool {
+	return SomeIndex(raw, func(v E, _ int) bool { return fn(v) })
+}
+
+// SomeIndex returns true if any element satisfies fn.
+func SomeIndex[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
 	for i, v := range raw {
 		if fn(v, i) {
 			return true
@@ -40,7 +60,12 @@ func Some[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
 }
 
 // Every returns true if all elements satisfy fn.
-func Every[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
+func Every[S ~[]E, E any](raw S, fn func(E) bool) bool {
+	return EveryIndex(raw, func(v E, _ int) bool { return fn(v) })
+}
+
+// EveryIndex returns true if all elements satisfy fn.
+func EveryIndex[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
 	for i, v := range raw {
 		if !fn(v, i) {
 			return false
@@ -50,7 +75,15 @@ func Every[S ~[]E, E any](raw S, fn func(E, int) bool) bool {
 }
 
 // Reduce left-folds the slice.
-func Reduce[S ~[]E, E any, R any](raw S, fn func(R, E, int) R, initial R) R {
+func Reduce[S ~[]E, E any, R any](raw S, fn func(R, E) R, initial R) R {
+	for _, v := range raw {
+		initial = fn(initial, v)
+	}
+	return initial
+}
+
+// ReduceIndex left-folds the slice.
+func ReduceIndex[S ~[]E, E any, R any](raw S, fn func(R, E, int) R, initial R) R {
 	for i, v := range raw {
 		initial = fn(initial, v, i)
 	}
@@ -58,7 +91,15 @@ func Reduce[S ~[]E, E any, R any](raw S, fn func(R, E, int) R, initial R) R {
 }
 
 // ReduceRight right-folds the slice.
-func ReduceRight[S ~[]E, E any, R any](raw S, fn func(R, E, int) R, initial R) R {
+func ReduceRight[S ~[]E, E any, R any](raw S, fn func(R, E) R, initial R) R {
+	for i := len(raw) - 1; i >= 0; i-- {
+		initial = fn(initial, raw[i])
+	}
+	return initial
+}
+
+// ReduceRightIndex right-folds the slice.
+func ReduceRightIndex[S ~[]E, E any, R any](raw S, fn func(R, E, int) R, initial R) R {
 	for i := len(raw) - 1; i >= 0; i-- {
 		initial = fn(initial, raw[i], i)
 	}
@@ -121,7 +162,12 @@ func Flat[S ~[]T, T ~[]E, E any](raw S) T {
 }
 
 // FlatMap maps each element to a slice and flattens one level.
-func FlatMap[S ~[]E, E any, T any](raw S, fn func(E, int) []T) []T {
+func FlatMap[S ~[]E, E any, T any](raw S, fn func(E) []T) []T {
+	return FlatMapIndex(raw, func(v E, _ int) []T { return fn(v) })
+}
+
+// FlatMapIndex maps each element to a slice and flattens one level.
+func FlatMapIndex[S ~[]E, E any, T any](raw S, fn func(E, int) []T) []T {
 	result := make([]T, 0, len(raw))
 	for i, v := range raw {
 		result = append(result, fn(v, i)...)

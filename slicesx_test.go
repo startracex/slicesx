@@ -8,7 +8,7 @@ import (
 
 func TestMap(t *testing.T) {
 	raw := []int{1, 2, 3}
-	out := Map(raw, func(v int, _ int) int { return v * 2 })
+	out := Map(raw, func(v int) int { return v * 2 })
 	expected := []int{2, 4, 6}
 
 	if !reflect.DeepEqual(out, expected) {
@@ -18,7 +18,7 @@ func TestMap(t *testing.T) {
 
 func TestFilter(t *testing.T) {
 	raw := []int{1, 2, 3, 4}
-	out := Filter(raw, func(v int, _ int) bool { return v%2 == 0 })
+	out := Filter(raw, func(v int) bool { return v%2 == 0 })
 	expected := []int{2, 4}
 
 	if !reflect.DeepEqual(out, expected) {
@@ -29,7 +29,7 @@ func TestFilter(t *testing.T) {
 func TestForEach(t *testing.T) {
 	raw := []int{1, 2, 3}
 	sum := 0
-	ForEach(raw, func(v int, _ int) {
+	ForEach(raw, func(v int) {
 		sum += v
 	})
 	if sum != 6 {
@@ -39,7 +39,7 @@ func TestForEach(t *testing.T) {
 
 func TestSome(t *testing.T) {
 	raw := []int{1, 2, 3}
-	ok := Some(raw, func(v int, _ int) bool { return v == 2 })
+	ok := Some(raw, func(v int) bool { return v == 2 })
 	if !ok {
 		t.Errorf("Some failed: expected true, got false")
 	}
@@ -47,7 +47,7 @@ func TestSome(t *testing.T) {
 
 func TestEvery(t *testing.T) {
 	raw := []int{2, 4, 6}
-	ok := Every(raw, func(v int, _ int) bool { return v%2 == 0 })
+	ok := Every(raw, func(v int) bool { return v%2 == 0 })
 	if !ok {
 		t.Errorf("Every failed: expected true, got false")
 	}
@@ -55,7 +55,7 @@ func TestEvery(t *testing.T) {
 
 func TestReduce(t *testing.T) {
 	raw := []int{1, 2, 3}
-	out := Reduce(raw, func(acc, cur int, _ int) int { return acc + cur }, 0)
+	out := Reduce(raw, func(acc, cur int) int { return acc + cur }, 0)
 	if out != 6 {
 		t.Errorf("Reduce failed: expected 6, got %d", out)
 	}
@@ -63,7 +63,7 @@ func TestReduce(t *testing.T) {
 
 func TestReduceRight(t *testing.T) {
 	raw := []string{"a", "b", "c"}
-	out := ReduceRight(raw, func(acc, cur string, _ int) string {
+	out := ReduceRight(raw, func(acc, cur string) string {
 		return acc + cur
 	}, "")
 	expected := "cba"
@@ -151,7 +151,7 @@ func TestFlat(t *testing.T) {
 
 func TestFlatMap(t *testing.T) {
 	raw := []int{1, 2, 3}
-	out := FlatMap(raw, func(v int, _ int) []string {
+	out := FlatMap(raw, func(v int) []string {
 		return []string{"x", fmt.Sprint(v)}
 	})
 	expected := []string{"x", "1", "x", "2", "x", "3"}

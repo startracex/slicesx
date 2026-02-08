@@ -19,7 +19,7 @@ import (
 func main() {
   nums := []int{1, 2, 3}
 
-  doubled := slicesx.Map(nums, func(v int, _ int) int {
+  doubled := slicesx.Map(nums, func(v int) int {
     return v * 2
   })
 
